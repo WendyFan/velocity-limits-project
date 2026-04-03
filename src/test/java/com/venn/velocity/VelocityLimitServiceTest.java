@@ -109,8 +109,8 @@ class VelocityLimitServiceTest {
     // Duplicate load ID
     @Test
     void ignoresDuplicateLoadIdForSameCustomer() {
-        Optional<LoadResponse> first = service.processLoad(load("dup1", "cust4", "$100.00", "2000-01-01T00:00:00Z"));
-        Optional<LoadResponse> duplicate = service.processLoad(load("dup1", "cust4", "$100.00", "2000-01-01T01:00:00Z"));
+        Optional<LoadResponse> first = service.ValidateAndExecute(load("dup1", "cust4", "$100.00", "2000-01-01T00:00:00Z"));
+        Optional<LoadResponse> duplicate = service.ValidateAndExecute(load("dup1", "cust4", "$100.00", "2000-01-01T01:00:00Z"));
 
         assertThat(first).isPresent();
         // Duplicate returns empty
@@ -120,9 +120,9 @@ class VelocityLimitServiceTest {
     @Test
     void sameLoadIdAllowedForDifferentCustomers() {
         // Load ID uniqueness is scoped per customer, not globally
-        Optional<LoadResponse> r1 = service.processLoad(load("sharedId", "custA", "$100.00", "2000-01-01T00:00:00Z"));
-        Optional<LoadResponse> r2 = service.processLoad(load("sharedId", "custB", "$100.00", "2000-01-01T01:00:00Z"));
-        Optional<LoadResponse> r3 = service.processLoad(load("sharedId", "custB", "$100.00", "2000-01-01T02:00:00Z"));
+        Optional<LoadResponse> r1 = service.ValidateAndExecute(load("sharedId", "custA", "$100.00", "2000-01-01T00:00:00Z"));
+        Optional<LoadResponse> r2 = service.ValidateAndExecute(load("sharedId", "custB", "$100.00", "2000-01-01T01:00:00Z"));
+        Optional<LoadResponse> r3 = service.ValidateAndExecute(load("sharedId", "custB", "$100.00", "2000-01-01T02:00:00Z"));
 
         assertThat(r1).isPresent();
         assertThat(r2).isPresent();
@@ -165,7 +165,7 @@ class VelocityLimitServiceTest {
     }
 
     private void assertAccepted(LoadAttempt attempt) {
-        Optional<LoadResponse> r = service.processLoad(attempt);
+        Optional<LoadResponse> r = service.ValidateAndExecute(attempt);
         assertThat(r).isPresent();
         assertThat(r.get().isAccepted())
                 .as("Expected load id=%s to be accepted", attempt.getId())
@@ -173,7 +173,7 @@ class VelocityLimitServiceTest {
     }
 
     private void assertRejected(LoadAttempt attempt) {
-        Optional<LoadResponse> r = service.processLoad(attempt);
+        Optional<LoadResponse> r = service.ValidateAndExecute(attempt);
         assertThat(r).isPresent();
         assertThat(r.get().isAccepted())
                 .as("Expected load id=%s to be rejected", attempt.getId())

@@ -1,7 +1,9 @@
 package com.venn.velocity.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+@JsonPropertyOrder({"id", "customer_id", "accepted"})
 public class LoadResponse {
 
     private final String id;
