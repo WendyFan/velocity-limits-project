@@ -10,8 +10,10 @@ import java.time.Instant;
 
 public interface LoadRecordRepository extends JpaRepository<LoadRecord, Long> {
 
+    // Duplicate check: Returns true if a load with the same ID already exists for this customer
     boolean existsByLoadIdAndCustomerId(String loadId, String customerId);
 
+    // Counts accepted loads within a UTC day window to check max count every day
     @Query("""
             SELECT COUNT(r) FROM LoadRecord r
             WHERE r.customerId = :customerId
@@ -24,6 +26,8 @@ public interface LoadRecordRepository extends JpaRepository<LoadRecord, Long> {
             @Param("dayStart") Instant dayStart,
             @Param("dayEnd") Instant dayEnd);
 
+    // Sums accepted load amounts within a UTC day window to check max amount limit
+    // COALESCE returns 0 when there are no records, avoiding a null result
     @Query("""
             SELECT COALESCE(SUM(r.amount), 0) FROM LoadRecord r
             WHERE r.customerId = :customerId
@@ -36,6 +40,8 @@ public interface LoadRecordRepository extends JpaRepository<LoadRecord, Long> {
             @Param("dayStart") Instant dayStart,
             @Param("dayEnd") Instant dayEnd);
 
+    // Sums accepted load amounts within a UTC week window (Mon–Sun) to check weekly limit
+    // COALESCE returns 0 when there are no records, avoiding a null result
     @Query("""
             SELECT COALESCE(SUM(r.amount), 0) FROM LoadRecord r
             WHERE r.customerId = :customerId
